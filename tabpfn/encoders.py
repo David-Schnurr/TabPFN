@@ -194,9 +194,14 @@ class Linear(nn.Linear):
         self.replace_nan_by_zero = replace_nan_by_zero
 
     def forward(self, x):
+        x_test = torch.zeros_like(x, device=x.device)
         if self.replace_nan_by_zero:
-            x = torch.nan_to_num(x, nan=0.0)
-        return super().forward(x)
+            x = torch.where(x < 0.5, x_test.detach(), x)
+            x = torch.where(torch.isnan(x).detach(), x_test.detach(), x)
+            #x = torch.nan_to_num(x, nan=0.0)
+            return super().forward(x)
+        x = torch.where(torch.isnan(x).detach(), x_test.detach(), x)
+        return super().forward(torch.where(x < 0.5, x_test.detach(), x))
 
     def __setstate__(self, state):
         super().__setstate__(state)

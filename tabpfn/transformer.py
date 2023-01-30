@@ -105,6 +105,7 @@ class TransformerModel(nn.Module):
 
         style_src, x_src, y_src = src
         x_src = self.encoder(x_src)
+        #return x_src[0,0,:]
         y_src = self.y_encoder(y_src.unsqueeze(-1) if len(y_src.shape) < len(x_src.shape) else y_src)
         style_src = self.style_encoder(style_src).unsqueeze(0) if self.style_encoder else \
             torch.tensor([], device=x_src.device)
